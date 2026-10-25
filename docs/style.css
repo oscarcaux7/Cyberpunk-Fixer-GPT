@@ -446,7 +446,7 @@ body.no-scanlines::before {
   border-radius: 4px;
   display: flex;
   flex-direction: column;
-  height: 600px;
+  height: clamp(500px, 62vh, 640px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
   position: relative;
   overflow: hidden;
@@ -949,14 +949,25 @@ body.no-scanlines::before {
 }
 
 /* ==============================================================================
-   RESPONSIVE DESIGN (TABLET & MOBILE PHONE OPTIMIZATIONS)
+   RESPONSIVE DESIGN SYSTEM (DESKTOP, TABLETS & SMARTPHONES)
    ============================================================================== */
 
-/* TABLET (under 1080px) */
-@media (max-width: 1080px) {
+/* 1. DESKTOP ZEN MODE (Collapsible sidebar for distraction-free full-width chat) */
+@media (min-width: 1025px) {
+  .intel-sidebar.desktop-collapsed {
+    display: none;
+  }
+  .main-workspace.expanded {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 2. TABLET & COMPACT LAPTOPS (1024px and below) */
+@media (max-width: 1024px) {
   .app-container {
     max-width: 960px;
-    padding: 14px 16px 30px;
+    padding: 12px 14px 28px;
+    gap: 14px;
   }
 
   .main-workspace {
@@ -964,30 +975,85 @@ body.no-scanlines::before {
   }
 
   .terminal-hud {
-    height: 560px;
+    height: clamp(460px, 58vh, 580px);
   }
 
   .cards-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
 
   .desktop-stat {
     display: none;
   }
+
+  /* Intel Sidebar turns into off-canvas drawer on all touch/tablet screens */
+  .intel-sidebar {
+    position: fixed;
+    top: 0;
+    right: -105%;
+    width: min(360px, 86vw);
+    height: 100vh;
+    background: #090c12;
+    z-index: 10000;
+    padding: 18px 16px;
+    overflow-y: auto;
+    box-shadow: -10px 0 35px rgba(0, 0, 0, 0.88);
+    border-left: 2px solid var(--theme-accent);
+    transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .intel-sidebar.drawer-open {
+    right: 0;
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .sidebar-backdrop.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .sidebar-mobile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border-dim);
+  }
 }
 
-/* MOBILE PHONES (under 680px) */
+/* 3. SMARTPHONES (680px and below) */
 @media (max-width: 680px) {
   html, body {
     font-size: 14px;
   }
 
   .app-container {
-    padding: 10px 10px 24px;
-    gap: 12px;
+    padding: 10px 10px 20px;
+    gap: 10px;
   }
 
-  /* Header on Mobile */
+  /* Compact Brand & Header */
   .hud-header {
     padding: 10px 12px;
     gap: 8px;
@@ -1022,7 +1088,7 @@ body.no-scanlines::before {
     font-size: 0.85rem;
   }
 
-  /* Compact Persona Selector for Mobile (Cards become compact touch pills) */
+  /* Compact Touch Cards for Mobile */
   .cards-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
@@ -1034,7 +1100,7 @@ body.no-scanlines::before {
   }
 
   .tcg-card .card-bio {
-    display: none; /* Hide long paragraphs on mobile to bring chat into view! */
+    display: none; /* Hide long paragraphs to keep chat front and center */
   }
 
   .tcg-card .card-subtitle {
@@ -1052,12 +1118,16 @@ body.no-scanlines::before {
 
   /* Terminal on Mobile */
   .terminal-hud {
-    height: 480px;
+    height: clamp(380px, 52vh, 480px);
     border-radius: 3px;
   }
 
   .terminal-header {
     padding: 10px 12px;
+  }
+
+  .terminal-stats {
+    display: none; /* Prevents crowding the header on narrow viewports */
   }
 
   .fixer-avatar {
@@ -1072,6 +1142,10 @@ body.no-scanlines::before {
 
   .fixer-meta .location {
     font-size: 0.68rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 210px;
   }
 
   .chat-log {
@@ -1083,6 +1157,11 @@ body.no-scanlines::before {
     max-width: 92%;
   }
 
+  .message-meta {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
   .message-body {
     padding: 10px 12px;
     font-size: 0.88rem;
@@ -1091,6 +1170,14 @@ body.no-scanlines::before {
   /* Suggestions Bar on Mobile */
   .suggestions-bar {
     padding: 6px 12px 4px;
+  }
+
+  .suggestions-title {
+    font-size: 0.68rem;
+  }
+
+  .chips-hint {
+    display: none;
   }
 
   .prompt-chip {
@@ -1130,64 +1217,119 @@ body.no-scanlines::before {
     padding: 8px 14px;
   }
 
-  /* Intel Sidebar on Mobile: Slidable drawer when opened via 📖 GUIDE button */
-  .intel-sidebar {
-    position: fixed;
-    top: 0;
-    right: -105%;
-    width: min(340px, 88vw);
-    height: 100vh;
-    background: #090c12;
-    z-index: 10000;
-    padding: 16px;
-    overflow-y: auto;
-    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.85);
-    border-left: 2px solid var(--theme-accent);
-    transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .intel-sidebar.drawer-open {
-    right: 0;
-  }
-
-  .sidebar-backdrop {
-    display: block;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    z-index: 9999;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-  }
-
-  .sidebar-backdrop.active {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .sidebar-mobile-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-family: var(--font-display);
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #fff;
-    padding-bottom: 12px;
-    margin-bottom: 10px;
-    border-bottom: 1px solid var(--border-dim);
-  }
-
   .hud-footer {
     flex-direction: column;
     text-align: center;
-    gap: 4px;
+    gap: 6px;
     font-size: 0.72rem;
+  }
+}
+
+/* 4. ULTRA-COMPACT MOBILE PHONES (480px and below, e.g. iPhone SE, Galaxy Fold) */
+@media (max-width: 480px) {
+  .app-container {
+    padding: 8px 8px 18px;
+    gap: 8px;
+  }
+
+  /* Two-tier balanced grid header */
+  .hud-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "brand telemetry"
+      "controls controls";
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+  }
+
+  .brand-section {
+    grid-area: brand;
+  }
+
+  .brand-logo-glitch {
+    font-size: 0.95rem;
+  }
+
+  .telemetry-badges {
+    grid-area: telemetry;
+    justify-content: flex-end;
+  }
+
+  .hud-controls {
+    grid-area: controls;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    width: 100%;
+  }
+
+  .hud-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 7px 4px;
+    font-size: 0.9rem;
+  }
+
+  .section-label {
+    font-size: 0.7rem;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  /* Ultra-compact Cards */
+  .cards-grid {
+    gap: 6px;
+  }
+
+  .tcg-card {
+    padding: 8px 8px;
+  }
+
+  .tcg-card .role-title {
+    font-size: 0.88rem;
+  }
+
+  .tcg-card .role-badge {
+    display: none; /* Keep card clean on small viewports */
+  }
+
+  .tcg-card .card-subtitle {
+    font-size: 0.68rem;
+  }
+
+  .card-footer .stat-pill {
+    display: none; /* Avoid footer wrapping */
+  }
+
+  .select-indicator {
+    font-size: 0.68rem;
+  }
+
+  /* Compact Terminal Input */
+  .terminal-input-bar {
+    padding: 8px 8px;
+    gap: 6px;
+  }
+
+  .input-prefix {
+    font-size: 0.72rem;
+  }
+
+  .terminal-input {
+    padding: 7px 8px;
+  }
+
+  .send-btn {
+    padding: 7px 12px;
+  }
+
+  .message-row {
+    max-width: 95%;
+  }
+
+  .fixer-meta .location {
+    max-width: 160px;
   }
 }

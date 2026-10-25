@@ -373,10 +373,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (intelToggleBtn) {
     intelToggleBtn.addEventListener("click", () => {
-      if (intelSidebar && intelSidebar.classList.contains("drawer-open")) {
-        closeIntelSidebar();
+      if (window.innerWidth <= 1024) {
+        if (intelSidebar && intelSidebar.classList.contains("drawer-open")) {
+          closeIntelSidebar();
+        } else {
+          openIntelSidebar();
+        }
       } else {
-        openIntelSidebar();
+        // Desktop Zen Mode: collapse/expand sidebar
+        const mainWorkspace = document.querySelector(".main-workspace");
+        const isCollapsed = intelSidebar ? intelSidebar.classList.toggle("desktop-collapsed") : false;
+        if (mainWorkspace) mainWorkspace.classList.toggle("expanded", isCollapsed);
+        intelToggleBtn.classList.toggle("active", !isCollapsed);
+        engine.soundboard.playSelect();
       }
     });
   }
@@ -388,6 +397,13 @@ document.addEventListener("DOMContentLoaded", () => {
   if (sidebarBackdrop) {
     sidebarBackdrop.addEventListener("click", closeIntelSidebar);
   }
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 1024 && intelSidebar) {
+      intelSidebar.classList.remove("drawer-open");
+      if (sidebarBackdrop) sidebarBackdrop.classList.remove("active");
+    }
+  });
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && intelSidebar && intelSidebar.classList.contains("drawer-open")) {

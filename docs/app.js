@@ -23,6 +23,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const localBackendToggle = document.getElementById("local-backend-toggle");
   const backendLabel = document.getElementById("backend-label");
   const fixerRoleBadge = document.getElementById("fixer-role-badge");
+  const intelToggleBtn = document.getElementById("intel-toggle-btn");
+  const intelSidebar = document.getElementById("intel-sidebar");
+  const sidebarCloseBtn = document.getElementById("sidebar-close-btn");
+  const sidebarBackdrop = document.getElementById("sidebar-backdrop");
 
   // 3. Dynamic Suggestion Prompts by Persona
   const PROMPT_SUGGESTIONS = {
@@ -83,15 +87,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Update Card Active State
       roleCards.forEach(c => {
-        if (c.getAttribute("data-role-card") === currentRole) {
+        const isMatch = c.getAttribute("data-role-card") === currentRole;
+        if (isMatch) {
           c.classList.add("selected");
+          c.setAttribute("aria-pressed", "true");
         } else {
           c.classList.remove("selected");
+          c.setAttribute("aria-pressed", "false");
         }
       });
 
       // Update HUD elements
-      if (inputPrefix) inputPrefix.textContent = `[${currentRole}] :`;
+      if (inputPrefix) {
+        inputPrefix.textContent = `[${currentRole}] :`;
+        inputPrefix.setAttribute("data-short", `[${currentRole.slice(0, 4)}] :`);
+      }
       if (fixerRoleBadge) fixerRoleBadge.textContent = currentRole;
 
       updateSuggestions(currentRole);
@@ -105,12 +115,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Bind Card Click Events
+  // Bind Card Click & Keyboard Events
   roleCards.forEach(card => {
     card.addEventListener("click", () => {
       const role = card.getAttribute("data-role-card");
       if (role && role !== currentRole) {
         setRole(role);
+      }
+    });
+
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        const role = card.getAttribute("data-role-card");
+        if (role && role !== currentRole) {
+          setRole(role);
+        }
       }
     });
   });
@@ -263,13 +283,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (command === "/sfx") {
       sfxEnabled = !sfxEnabled;
       engine.soundboard.enabled = sfxEnabled;
-      sfxToggleBtn.textContent = sfxEnabled ? "SFX: ON" : "SFX: OFF";
+      updateSfxButtonUI();
       appendSystemMessage(`Retour audio synthétique : ${sfxEnabled ? "ACTIVÉ" : "DÉSACTIVÉ"}`);
       return;
     }
 
     if (command === "/scanlines") {
       document.body.classList.toggle("no-scanlines");
+      updateScanlinesButtonUI();
       appendSystemMessage("Filtre CRT Scanlines basculé.");
       return;
     }
@@ -294,13 +315,33 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Helper to sync SFX button UI
+  function updateSfxButtonUI() {
+    if (!sfxToggleBtn) return;
+    const textSpan = sfxToggleBtn.querySelector(".btn-text");
+    const iconSpan = sfxToggleBtn.querySelector(".btn-icon");
+    if (textSpan) textSpan.textContent = sfxEnabled ? "SFX: ON" : "SFX: OFF";
+    else sfxToggleBtn.textContent = sfxEnabled ? "SFX: ON" : "SFX: OFF";
+    if (iconSpan) iconSpan.textContent = sfxEnabled ? "🔊" : "🔇";
+    sfxToggleBtn.classList.toggle("active", sfxEnabled);
+  }
+
+  // Helper to sync Scanlines button UI
+  function updateScanlinesButtonUI() {
+    if (!scanlinesToggleBtn) return;
+    const active = !document.body.classList.contains("no-scanlines");
+    const textSpan = scanlinesToggleBtn.querySelector(".btn-text");
+    if (textSpan) textSpan.textContent = active ? "CRT: ON" : "CRT: OFF";
+    else scanlinesToggleBtn.textContent = active ? "CRT: ON" : "CRT: OFF";
+    scanlinesToggleBtn.classList.toggle("active", active);
+  }
+
   // 10. Sound & Display Toggles
   if (sfxToggleBtn) {
     sfxToggleBtn.addEventListener("click", () => {
       sfxEnabled = !sfxEnabled;
       engine.soundboard.enabled = sfxEnabled;
-      sfxToggleBtn.textContent = sfxEnabled ? "SFX: ON" : "SFX: OFF";
-      sfxToggleBtn.classList.toggle("active", sfxEnabled);
+      updateSfxButtonUI();
       if (sfxEnabled) engine.soundboard.playSelect();
     });
   }
@@ -308,11 +349,51 @@ document.addEventListener("DOMContentLoaded", () => {
   if (scanlinesToggleBtn) {
     scanlinesToggleBtn.addEventListener("click", () => {
       document.body.classList.toggle("no-scanlines");
-      const active = !document.body.classList.contains("no-scanlines");
-      scanlinesToggleBtn.classList.toggle("active", active);
+      updateScanlinesButtonUI();
       engine.soundboard.playSelect();
     });
   }
+
+  // Mobile Intel Sidebar Drawer Handlers
+  function openIntelSidebar() {
+    if (!intelSidebar) return;
+    intelSidebar.classList.add("drawer-open");
+    if (intelToggleBtn) intelToggleBtn.classList.add("active");
+    if (sidebarBackdrop) sidebarBackdrop.classList.add("active");
+    engine.soundboard.playSelect();
+  }
+
+  function closeIntelSidebar() {
+    if (!intelSidebar) return;
+    intelSidebar.classList.remove("drawer-open");
+    if (intelToggleBtn) intelToggleBtn.classList.remove("active");
+    if (sidebarBackdrop) sidebarBackdrop.classList.remove("active");
+    engine.soundboard.playSelect();
+  }
+
+  if (intelToggleBtn) {
+    intelToggleBtn.addEventListener("click", () => {
+      if (intelSidebar && intelSidebar.classList.contains("drawer-open")) {
+        closeIntelSidebar();
+      } else {
+        openIntelSidebar();
+      }
+    });
+  }
+
+  if (sidebarCloseBtn) {
+    sidebarCloseBtn.addEventListener("click", closeIntelSidebar);
+  }
+
+  if (sidebarBackdrop) {
+    sidebarBackdrop.addEventListener("click", closeIntelSidebar);
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && intelSidebar && intelSidebar.classList.contains("drawer-open")) {
+      closeIntelSidebar();
+    }
+  });
 
   if (localBackendToggle) {
     localBackendToggle.addEventListener("change", (e) => {

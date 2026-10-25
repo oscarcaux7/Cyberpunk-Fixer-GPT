@@ -248,6 +248,7 @@ class FixerEngine:
         statut: str,
         user_message: str,
         typing_speed: bool = True,
+        stream: bool = True,
     ) -> str:
         """Génère la réplique du Fixer : concise, percutante, adaptée au rôle."""
         role = statut.upper() if statut.upper() in ["CORPO", "NETRUNNER", "EDGERUNNER", "MERC"] else "MERC"
@@ -262,20 +263,21 @@ class FixerEngine:
         selected_reply = scored[0][1]
 
         # Affichage avec cadence de frappe humaine
-        prefix = "\033[1;33m[FIXER]\033[0m : "
-        print(prefix, end="", flush=True)
+        if stream:
+            prefix = "\033[1;33m[FIXER]\033[0m : "
+            print(prefix, end="", flush=True)
 
-        for char in selected_reply:
-            print(char, end="", flush=True)
-            if typing_speed:
-                if char in {",", ";", ":"}:
-                    time.sleep(random.uniform(0.04, 0.08))
-                elif char in {".", "!", "?"}:
-                    time.sleep(random.uniform(0.12, 0.20))
-                else:
-                    time.sleep(random.uniform(0.010, 0.022))
+            for char in selected_reply:
+                print(char, end="", flush=True)
+                if typing_speed:
+                    if char in {",", ";", ":"}:
+                        time.sleep(random.uniform(0.04, 0.08))
+                    elif char in {".", "!", "?"}:
+                        time.sleep(random.uniform(0.12, 0.20))
+                    else:
+                        time.sleep(random.uniform(0.010, 0.022))
 
-        print()
+            print()
         return selected_reply
 
 

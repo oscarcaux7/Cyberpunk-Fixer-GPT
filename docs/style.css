@@ -1,0 +1,866 @@
+/* ==============================================================================
+   CYBERPUNK FIXER - STYLESHEET (Inspired by cyberpunktcg.com & Cyberpunk 2077 HUD)
+   ============================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,700&family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&display=swap');
+
+:root {
+  --bg-primary: #07080b;
+  --bg-secondary: #0d1017;
+  --bg-card: #131722;
+  --bg-card-hover: #181d2b;
+  --border-dim: #262c3d;
+  --border-bright: #3d4763;
+  
+  /* Cyberpunk Signature Palette */
+  --neon-yellow: #fcee0a;
+  --neon-cyan: #00f0ff;
+  --neon-pink: #ff0055;
+  --neon-red: #ff003c;
+  --neon-green: #00ff66;
+  --neon-purple: #a855f7;
+  
+  /* Active Role Theme (defaults to CORPO: red/gold) */
+  --theme-accent: #ff003c;
+  --theme-glow: rgba(255, 0, 60, 0.4);
+  --theme-tag: #ff003c;
+  --theme-bg-subtle: rgba(255, 0, 60, 0.08);
+
+  --text-primary: #f0f4fc;
+  --text-muted: #8d98af;
+  --text-dark: #07080b;
+
+  --font-display: 'Orbitron', 'Chakra Petch', sans-serif;
+  --font-ui: 'Chakra Petch', sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
+
+  --clip-cut-corner: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+  --clip-cut-btn: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+
+/* Theme classes dynamically set by JS */
+body[data-role="CORPO"] {
+  --theme-accent: #ff003c;
+  --theme-glow: rgba(255, 0, 60, 0.45);
+  --theme-tag: #ff003c;
+  --theme-bg-subtle: rgba(255, 0, 60, 0.08);
+}
+
+body[data-role="NETRUNNER"] {
+  --theme-accent: #00f0ff;
+  --theme-glow: rgba(0, 240, 255, 0.45);
+  --theme-tag: #00f0ff;
+  --theme-bg-subtle: rgba(0, 240, 255, 0.08);
+}
+
+body[data-role="EDGERUNNER"] {
+  --theme-accent: #fcee0a;
+  --theme-glow: rgba(252, 238, 10, 0.45);
+  --theme-tag: #fcee0a;
+  --theme-bg-subtle: rgba(252, 238, 10, 0.08);
+}
+
+body[data-role="MERC"] {
+  --theme-accent: #00ff66;
+  --theme-glow: rgba(0, 255, 102, 0.45);
+  --theme-tag: #00ff66;
+  --theme-bg-subtle: rgba(0, 255, 102, 0.08);
+}
+
+/* RESET & BASE */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scanline and CRT Glitch Overlay */
+body::before {
+  content: " ";
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.85;
+}
+
+body.no-scanlines::before {
+  display: none;
+}
+
+/* Cyber Grid Background */
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bg-ambient-glow {
+  position: fixed;
+  top: -150px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 400px;
+  background: radial-gradient(circle, var(--theme-glow) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  transition: background 0.6s ease;
+  filter: blur(60px);
+  opacity: 0.6;
+}
+
+/* CONTAINER */
+.app-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 16px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ==============================================================================
+   HEADER HUD
+   ============================================================================== */
+.hud-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 14px 20px;
+  background: rgba(13, 16, 23, 0.85);
+  border: 1px solid var(--border-dim);
+  border-left: 4px solid var(--theme-accent);
+  clip-path: var(--clip-cut-btn);
+  backdrop-filter: blur(10px);
+  transition: border-color 0.4s ease;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand-logo-glitch {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #fff;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-logo-glitch span.accent {
+  color: var(--neon-yellow);
+  text-shadow: 0 0 10px rgba(252, 238, 10, 0.6);
+}
+
+.brand-logo-glitch span.version {
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  background: var(--theme-accent);
+  color: #000;
+  font-weight: 700;
+  padding: 2px 6px;
+  clip-path: polygon(0 0, 100% 0, 85% 100%, 0% 100%);
+  transition: background 0.4s ease;
+}
+
+.telemetry-badges {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.badge-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 4px 10px;
+  border: 1px solid var(--border-dim);
+  border-radius: 2px;
+  color: var(--text-muted);
+}
+
+.badge-item .indicator {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--neon-green);
+  box-shadow: 0 0 8px var(--neon-green);
+  animation: pulse-dot 2s infinite ease-in-out;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.hud-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hud-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  clip-path: var(--clip-cut-btn);
+  transition: all 0.2s ease;
+}
+
+.hud-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--theme-accent);
+  color: #fff;
+  box-shadow: 0 0 10px var(--theme-glow);
+}
+
+.hud-btn.active {
+  background: var(--theme-bg-subtle);
+  border-color: var(--theme-accent);
+  color: var(--theme-accent);
+}
+
+/* ==============================================================================
+   SECTION 1 : TCG PERSONA CARDS (CHOISIR TON STATUT)
+   ============================================================================== */
+.persona-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+}
+
+.section-label span.accent-tag {
+  color: var(--theme-accent);
+  font-weight: 700;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1024px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Card Design inspired by Cyberpunk TCG */
+.tcg-card {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  padding: 16px;
+  clip-path: var(--clip-cut-corner);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 200px;
+  overflow: hidden;
+}
+
+.tcg-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--card-accent, #666);
+  opacity: 0.5;
+  transition: all 0.25s ease;
+}
+
+.tcg-card[data-role-card="CORPO"] { --card-accent: #ff003c; }
+.tcg-card[data-role-card="NETRUNNER"] { --card-accent: #00f0ff; }
+.tcg-card[data-role-card="EDGERUNNER"] { --card-accent: #fcee0a; }
+.tcg-card[data-role-card="MERC"] { --card-accent: #00ff66; }
+
+.tcg-card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--card-accent);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6), 0 0 15px rgba(255, 255, 255, 0.05);
+}
+
+.tcg-card:hover::before {
+  opacity: 1;
+  box-shadow: 0 0 12px var(--card-accent);
+}
+
+.tcg-card.selected {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.06) 0%, rgba(13, 16, 23, 0.95) 100%);
+  border-color: var(--card-accent);
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.7), 0 0 15px var(--card-accent);
+}
+
+.tcg-card.selected::before {
+  height: 4px;
+  opacity: 1;
+  box-shadow: 0 0 14px var(--card-accent);
+}
+
+.tcg-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.tcg-card .role-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tcg-card .role-badge {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border: 1px solid var(--card-accent);
+  color: var(--card-accent);
+  background: rgba(0, 0, 0, 0.4);
+  font-weight: 700;
+}
+
+.tcg-card .card-subtitle {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--card-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.tcg-card .card-bio {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin-bottom: 14px;
+}
+
+.tcg-card .card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-dim);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.card-footer .stat-pill {
+  background: rgba(255, 255, 255, 0.04);
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+.card-footer .select-indicator {
+  color: var(--card-accent);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ==============================================================================
+   MAIN WORKSPACE : CHAT TERMINAL & INTEL DRAWER
+   ============================================================================== */
+.main-workspace {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+}
+
+@media (max-width: 1080px) {
+  .main-workspace {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* TERMINAL HOLO CONTAINER */
+.terminal-hud {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-dim);
+  clip-path: var(--clip-cut-corner);
+  display: flex;
+  flex-direction: column;
+  min-height: 540px;
+  height: 620px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  position: relative;
+}
+
+.terminal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-dim);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.fixer-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fixer-avatar {
+  width: 36px;
+  height: 36px;
+  background: #111;
+  border: 1px solid var(--theme-accent);
+  clip-path: polygon(0 0, 100% 0, 85% 100%, 0% 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--theme-accent);
+  font-weight: 900;
+  font-size: 1.1rem;
+  box-shadow: 0 0 10px var(--theme-glow);
+}
+
+.fixer-meta .name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.fixer-meta .location {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.terminal-stats {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.hud-stat-item {
+  color: var(--text-muted);
+}
+.hud-stat-item span.val {
+  color: var(--neon-cyan);
+  font-weight: 700;
+}
+
+/* CHAT LOG STREAM */
+.chat-log {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scroll-behavior: smooth;
+}
+
+/* Scrollbar */
+.chat-log::-webkit-scrollbar {
+  width: 6px;
+}
+.chat-log::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+.chat-log::-webkit-scrollbar-thumb {
+  background: var(--border-bright);
+}
+.chat-log::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-accent);
+}
+
+.message-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 88%;
+  animation: fadeInMsg 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInMsg {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.message-row.user {
+  align-self: flex-end;
+}
+
+.message-row.fixer {
+  align-self: flex-start;
+}
+
+.message-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.message-meta .sender-tag {
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 2px;
+}
+
+.message-row.user .sender-tag {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.message-row.fixer .sender-tag {
+  background: var(--theme-bg-subtle);
+  color: var(--theme-accent);
+  border: 1px solid var(--theme-accent);
+}
+
+.message-body {
+  padding: 12px 16px;
+  clip-path: var(--clip-cut-btn);
+  font-size: 0.95rem;
+  line-height: 1.45;
+  position: relative;
+}
+
+.message-row.user .message-body {
+  background: #1b202e;
+  border: 1px solid var(--border-bright);
+  color: #fff;
+}
+
+.message-row.fixer .message-body {
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-left: 3px solid var(--theme-accent);
+  color: #e2e8f0;
+}
+
+.message-body span.cursor {
+  display: inline-block;
+  width: 8px;
+  height: 16px;
+  background: var(--theme-accent);
+  vertical-align: middle;
+  margin-left: 4px;
+  animation: blink 0.8s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ==============================================================================
+   SUGGESTION CHIPS (SUBTLE PROMPTS FOR BEGINNERS)
+   ============================================================================== */
+.suggestions-bar {
+  padding: 8px 18px 4px;
+  background: rgba(13, 16, 23, 0.95);
+  border-top: 1px solid var(--border-dim);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.suggestions-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.chips-wrapper {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.chips-wrapper::-webkit-scrollbar {
+  height: 3px;
+}
+.chips-wrapper::-webkit-scrollbar-thumb {
+  background: var(--border-dim);
+}
+
+.prompt-chip {
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  color: #cbd5e1;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 5px 12px;
+  white-space: nowrap;
+  cursor: pointer;
+  clip-path: var(--clip-cut-btn);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.prompt-chip span.chip-icon {
+  color: var(--theme-accent);
+}
+
+.prompt-chip:hover {
+  background: var(--theme-bg-subtle);
+  border-color: var(--theme-accent);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 0 10px var(--theme-glow);
+}
+
+/* INPUT BAR */
+.terminal-input-bar {
+  padding: 14px 18px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-dim);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.input-prefix {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--theme-accent);
+}
+
+.terminal-input {
+  flex: 1;
+  background: #090b10;
+  border: 1px solid var(--border-bright);
+  color: #fff;
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  padding: 10px 14px;
+  clip-path: var(--clip-cut-btn);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.terminal-input:focus {
+  border-color: var(--theme-accent);
+  box-shadow: 0 0 12px var(--theme-glow);
+}
+
+.terminal-input::placeholder {
+  color: #4a5568;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.send-btn {
+  background: var(--theme-accent);
+  color: #000;
+  border: none;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  padding: 10px 20px;
+  cursor: pointer;
+  clip-path: var(--clip-cut-btn);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.send-btn:hover {
+  filter: brightness(1.2);
+  transform: translateY(-1px);
+  box-shadow: 0 0 15px var(--theme-glow);
+}
+
+/* ==============================================================================
+   SIDEBAR : LORE GUIDE & NIGHT CITY INTEL
+   ============================================================================== */
+.intel-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.intel-panel {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-dim);
+  clip-path: var(--clip-cut-corner);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.intel-panel .panel-title {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-dim);
+}
+
+.intel-panel .panel-title span.tag {
+  color: var(--theme-accent);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+
+/* Street Slang Glossary */
+.glossary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.glossary-item {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 8px 12px;
+  border-radius: 2px;
+  font-size: 0.82rem;
+  transition: all 0.2s ease;
+}
+
+.glossary-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--theme-accent);
+}
+
+.glossary-item .term {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--theme-accent);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.glossary-item .def {
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+/* Local backend status indicator */
+.backend-box {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-dim);
+  padding: 10px 12px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.backend-status-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status-tag-active {
+  color: var(--neon-cyan);
+  font-weight: 700;
+}
+
+/* FOOTER */
+.hud-footer {
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  padding: 16px;
+  border-top: 1px solid var(--border-dim);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.hud-footer a {
+  color: var(--theme-accent);
+  text-decoration: none;
+}
+.hud-footer a:hover {
+  text-decoration: underline;
+}

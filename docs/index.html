@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyberpunk Fixer — Terminal de Night City & Holo Interface</title>
+  <meta name="description" content="Interface web interactive avec le Fixer de Night City. Conditionnement dynamique par rôle (CORPO, NETRUNNER, EDGERUNNER, MERC) inspiré de Cyberpunk 2077 et cyberpunktcg.com">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-role="CORPO">
+
+  <!-- Cyber Grid Background and Ambient Glow -->
+  <div class="bg-grid"></div>
+  <div class="bg-ambient-glow"></div>
+
+  <div class="app-container">
+
+    <!-- ==============================================================================
+         HUD HEADER
+         ============================================================================== -->
+    <header class="hud-header">
+      <div class="brand-section">
+        <div class="brand-logo-glitch">
+          FIXER <span class="accent">// NIGHT CITY</span>
+          <span class="version">v2.0-GPT</span>
+        </div>
+      </div>
+
+      <div class="telemetry-badges">
+        <div class="badge-item">
+          <span class="indicator"></span>
+          <span>NET: SECURE_SUBNET</span>
+        </div>
+        <div class="badge-item">
+          <span>MODEL: GPT-TRANSFORMER</span>
+        </div>
+      </div>
+
+      <div class="hud-controls">
+        <button id="sfx-toggle" class="hud-btn active" title="Activer/Désactiver les effets audio rétro">
+          🔊 SFX: ON
+        </button>
+        <button id="scanlines-toggle" class="hud-btn active" title="Activer/Désactiver les lignes CRT de l'écran">
+          📺 CRT: ON
+        </button>
+        <a href="https://github.com/oscarcaux7/Cyberpunk-Fixer-GPT" target="_blank" rel="noopener noreferrer" class="hud-btn" style="text-decoration: none;">
+          ⚡ GITHUB REPO
+        </a>
+      </div>
+    </header>
+
+    <!-- ==============================================================================
+         SECTION 1 : TCG PERSONA CARDS (CHOISIR TON STATUT)
+         ============================================================================== -->
+    <section class="persona-section">
+      <div class="section-label">
+        <span>01 // SÉLECTION DU PROFIL DE L'INTERLOCUTEUR</span>
+        <span>STATUT ACTIF : <span class="accent-tag" id="fixer-role-badge">CORPO</span></span>
+      </div>
+
+      <div class="cards-grid">
+        <!-- CARD 1: CORPO -->
+        <article class="tcg-card selected" data-role-card="CORPO">
+          <div class="card-header">
+            <h2 class="role-title">👔 CORPO</h2>
+            <span class="role-badge">TIER 1</span>
+          </div>
+          <div class="card-subtitle">Executive Predator</div>
+          <p class="card-bio">
+            Arrogant cadre d'Arasaka ou Militech. Costard trois pièces en fibre balistique, compte d'eddies blindé, cible rêvée pour l'extorsion et le chantage.
+          </p>
+          <div class="card-footer">
+            <span class="stat-pill">EDDIES: ★★★★★</span>
+            <span class="stat-pill">CHROME: DISCRET</span>
+            <span class="select-indicator">ACTIF ➔</span>
+          </div>
+        </article>
+
+        <!-- CARD 2: NETRUNNER -->
+        <article class="tcg-card" data-role-card="NETRUNNER">
+          <div class="card-header">
+            <h2 class="role-title">💻 NETRUNNER</h2>
+            <span class="role-badge">TIER 2</span>
+          </div>
+          <div class="card-subtitle">Cyberdeck Phantom</div>
+          <p class="card-bio">
+            Pirate neural plongeant dans la Toile profonde. Cerveau bardé de puces mémoires, constamment traqué par la GLACE noire et les patrouilles de NetWatch.
+          </p>
+          <div class="card-footer">
+            <span class="stat-pill">RAM: ★★★★★</span>
+            <span class="stat-pill">GLACE: EXTRÊME</span>
+            <span class="select-indicator">CHOISIR ➔</span>
+          </div>
+        </article>
+
+        <!-- CARD 3: EDGERUNNER -->
+        <article class="tcg-card" data-role-card="EDGERUNNER">
+          <div class="card-header">
+            <h2 class="role-title">🦾 EDGERUNNER</h2>
+            <span class="role-badge">TIER 3</span>
+          </div>
+          <div class="card-subtitle">Chrome Samurai</div>
+          <p class="card-bio">
+            Mercenaire chromé vivant à cent à l'heure sous Sandevistan et lames Mantis. Prêt à tout pour devenir une légende vivante au bar Afterlife.
+          </p>
+          <div class="card-footer">
+            <span class="stat-pill">CHROME: ★★★★★</span>
+            <span class="stat-pill">PSYCHOSE: 42%</span>
+            <span class="select-indicator">CHOISIR ➔</span>
+          </div>
+        </article>
+
+        <!-- CARD 4: MERC -->
+        <article class="tcg-card" data-role-card="MERC">
+          <div class="card-header">
+            <h2 class="role-title">🔫 MERC</h2>
+            <span class="role-badge">TIER 4</span>
+          </div>
+          <div class="card-subtitle">Street Solo</div>
+          <p class="card-bio">
+            Franc-tireur pragmatique de Heywood. Pas de fioritures, du calibre lourd dans le holster et des contrats de nettoyage de gangs payés cash en eddies.
+          </p>
+          <div class="card-footer">
+            <span class="stat-pill">DÉGÂTS: ★★★★★</span>
+            <span class="stat-pill">PRÉCISION: BRUTE</span>
+            <span class="select-indicator">CHOISIR ➔</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ==============================================================================
+         SECTION 2 : WORKSPACE (TERMINAL HOLO + GUIDE DE NUIT)
+         ============================================================================== -->
+    <main class="main-workspace">
+
+      <!-- TERMINAL CHAT CONTAINER -->
+      <section class="terminal-hud">
+        <div class="terminal-header">
+          <div class="fixer-identity">
+            <div class="fixer-avatar">⚡</div>
+            <div class="fixer-meta">
+              <div class="name">DEX // FIXER DE NIGHT CITY</div>
+              <div class="location">Holo Canal Sécurisé • Afterlife Subnet</div>
+            </div>
+          </div>
+          <div class="terminal-stats">
+            <div class="hud-stat-item">LATENCE: <span class="val">1.2ms</span></div>
+            <div class="hud-stat-item">CRYPTAGE: <span class="val">AES-512</span></div>
+          </div>
+        </div>
+
+        <!-- Chat Log Stream -->
+        <div class="chat-log" id="chat-log"></div>
+
+        <!-- Suggestion Chips Bar -->
+        <div class="suggestions-bar">
+          <div class="suggestions-title">
+            <span>⚡ CONSEILS DE DEMANDES RAPIDES (1-CLIC) :</span>
+            <span>CLIQUEZ POUR CHARGER</span>
+          </div>
+          <div class="chips-wrapper" id="chips-container">
+            <!-- Dynamically populated by JS according to role -->
+          </div>
+        </div>
+
+        <!-- Input Bar -->
+        <div class="terminal-input-bar">
+          <span class="input-prefix" id="input-prefix">[CORPO] :</span>
+          <input
+            type="text"
+            id="user-input"
+            class="terminal-input"
+            placeholder="Écrivez votre message au Fixer ou utilisez une suggestion..."
+            autocomplete="off"
+            spellcheck="false"
+          >
+          <button id="send-btn" class="send-btn">
+            ENVOYER ➔
+          </button>
+        </div>
+      </section>
+
+      <!-- SIDEBAR : LORE INTEL & NIGHT CITY SURVIVAL GUIDE -->
+      <aside class="intel-sidebar">
+
+        <!-- Panel 1: Conseils pour débutants -->
+        <div class="intel-panel">
+          <div class="panel-title">
+            <span>GUIDE DE SURVIE</span>
+            <span class="tag">INTEL</span>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
+            <strong style="color: #fff;">Nouveau à Night City ?</strong> Le Fixer est cynique, arrogant et impitoyable. Voici comment lui parler :
+          </p>
+          <ul style="padding-left: 18px; font-size: 0.82rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 6px;">
+            <li><strong style="color: var(--neon-cyan);">Pas de politesses molles</strong> : Allez droit au but, parlez contrats, armes ou eddies.</li>
+            <li><strong style="color: var(--neon-yellow);">Provoquez-le</strong> : Essayez <em>« Hey, qu'est-ce que tu fais là toi ? »</em> pour voir sa réaction selon votre profil.</li>
+            <li><strong style="color: var(--neon-pink);">Testez l'absurde</strong> : Il a des réparties sur mesure pour les pannes de chrome insolites ou la mauvaise bouffe.</li>
+          </ul>
+        </div>
+
+        <!-- Panel 2: Lexique d'Argot de Rue -->
+        <div class="intel-panel">
+          <div class="panel-title">
+            <span>LEXIQUE DE RUE</span>
+            <span class="tag">ARGOT</span>
+          </div>
+          <div class="glossary-list">
+            <div class="glossary-item">
+              <span class="term">Eddies (E$)</span>
+              <span class="def">Eurodollars, la monnaie unique. Le Fixer ne bouge pas sans avance.</span>
+            </div>
+            <div class="glossary-item">
+              <span class="term">Choom / Choomba</span>
+              <span class="def">Ami, pote, acolyte. Peut être ironique ou menaçant selon le ton.</span>
+            </div>
+            <div class="glossary-item">
+              <span class="term">Gonk</span>
+              <span class="def">Imbécile, pigeon crédule, chair à canon facile de Night City.</span>
+            </div>
+            <div class="glossary-item">
+              <span class="term">GLACE Noire (Black ICE)</span>
+              <span class="def">Logiciel de contre-intrusion létal qui crame le cortex des hackers.</span>
+            </div>
+            <div class="glossary-item">
+              <span class="term">Sandevistan</span>
+              <span class="def">Implant neural militaire accélérant les réflexes et dilatant le temps perçu.</span>
+            </div>
+            <div class="glossary-item">
+              <span class="term">Afterlife</span>
+              <span class="def">Le bar mythique où les boissons portent le nom des mercenaires morts.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 3: Pont PyTorch Local Optionnel -->
+        <div class="intel-panel">
+          <div class="panel-title">
+            <span>PONT MOTEUR</span>
+            <span class="tag">CONFIG</span>
+          </div>
+          <div class="backend-box">
+            <div class="backend-status-line">
+              <span>MOTEUR :</span>
+              <span class="status-tag-active" id="backend-label">In-Browser Engine (Client)</span>
+            </div>
+            <label style="display: flex; align-items: center; gap: 8px; margin-top: 6px; cursor: pointer; color: var(--text-muted);">
+              <input type="checkbox" id="local-backend-toggle" style="accent-color: var(--theme-accent);">
+              <span>Relier au serveur PyTorch local</span>
+            </label>
+            <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">
+              Lancez <code>python server.py</code> en local pour utiliser vos propres poids <code>cyberpunk_fixer.pt</code>.
+            </div>
+          </div>
+        </div>
+
+      </aside>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="hud-footer">
+      <div>
+        NIGHT CITY FIXER TERMINAL • Mini-Projet Deep Learning (<a href="09_cyberpunk_fixer.ipynb">Notebook 09</a>)
+      </div>
+      <div>
+        Développé avec <strong>PyTorch pur</strong> & <strong>Vanilla JS</strong> • Hébergé sur <a href="https://github.com/oscarcaux7/Cyberpunk-Fixer-GPT" target="_blank" rel="noopener noreferrer">GitHub Pages</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="cyberpunk-engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

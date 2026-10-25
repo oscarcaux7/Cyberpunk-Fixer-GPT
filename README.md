@@ -1,5 +1,9 @@
 # Mini-Projet : Fixer de Night City — GPT Cyberpunk 2077
 
+[![Live Web Interface](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-fcee0a?style=for-the-badge&logo=github&logoColor=black)](https://oscarcaux7.github.io/Cyberpunk-Fixer-GPT/)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-00f0ff?style=for-the-badge&logo=python)](https://python.org)
+[![PyTorch](https://img.shields.io/badge/PyTorch-Pure%20Tensor-ff0055?style=for-the-badge&logo=pytorch)](https://pytorch.org)
+
 Ce mini-projet constitue la suite directe de la série de notebooks de cours (`01_texte_vers_nombres` à `08_bpe`).
 
 L'objectif est d'entraîner **from scratch** un petit modèle de langue autorégressif de type Transformer Décodeur-seul (**846 164 paramètres**) à incarner un **Fixer véreux et cynique de Night City** (univers Cyberpunk 2077 / Edgerunners), capable d'adapter son registre de langue, ses insultes et ses contrats selon le profil de son interlocuteur :
@@ -12,6 +16,21 @@ Le tout sans aucun framework haut-niveau (`transformers`, `datasets`, `langchain
 
 ---
 
+## 🌐 Interface Web Interactive (Inspirée de cyberpunktcg.com)
+
+Le projet propose une interface web immersive hébergée directement sur **GitHub Pages** :
+
+👉 **[Accéder au Terminal Web du Fixer (GitHub Pages)](https://oscarcaux7.github.io/Cyberpunk-Fixer-GPT/)**
+
+### Caractéristiques de l'interface :
+- 🎴 **Cartes Persona TCG** : Basculez en un clic entre `CORPO`, `NETRUNNER`, `EDGERUNNER` et `MERC`. L'ensemble du thème graphique (couleurs néon, accent, avatar) et le ton du Fixer se transforment en temps réel.
+- 💬 **Holo Terminal & Typewriter Effect** : Streaming de réponses avec cadence de frappe humaine et bruits de clavier synthétisés par l'API Web Audio (aucun fichier son externe requis).
+- 💡 **Suggestions subtiles (1-clic)** : Des boutons de requêtes dynamiques orientent les utilisateurs non familiers avec l'univers de Cyberpunk 2077 (*contrats, convoi Militech, chrome illégal, provocation, délires absordes*).
+- 📖 **Guide de survie & Lexique de rue** : Un panneau latéral récapitule les termes clés (*Eddies, Choom, Gonk, GLACE noire, Sandevistan, Afterlife, Trauma Team*).
+- ⚙️ **Architecture Hybride** : Fonctionne de manière **100% autonome dans le navigateur** (moteur IA côté client) sur GitHub Pages, tout en proposant un commutateur pour se relier à votre modèle PyTorch local si vous lancez `python server.py`.
+
+---
+
 ## 1. Installation des Dépendances
 
 ### Prérequis
@@ -19,7 +38,6 @@ Le tout sans aucun framework haut-niveau (`transformers`, `datasets`, `langchain
 - Un terminal Linux, macOS ou Windows.
 
 ### Étape 1 : Créer et activer l'environnement virtuel
-Ouvrez un terminal dans le dossier du projet :
 ```bash
 cd "/home/oscar/Documents/A5_CREATECH/Artificial Intelligence/Cyberpunk_Generate"
 
@@ -28,47 +46,32 @@ python3 -m venv .venv
 
 # Activation sous Linux / macOS
 source .venv/bin/activate
-
-# (Sous Windows PowerShell : .venv\Scripts\Activate.ps1)
 ```
 
 ### Étape 2 : Installer les packages
-Installez toutes les bibliothèques requises en une seule commande :
 ```bash
 pip install -r requirements.txt
 ```
-
-*Contenu de `requirements.txt` :*
-- `torch` : calcul tensoriel, autograd, réseau de neurones et attention causale.
-- `matplotlib` : tracé des courbes de loss et de perplexité.
-- `tensorboard` : suivi des scalaires d'entraînement en temps réel.
-- `jupyter`, `notebook`, `ipykernel` : environnement d'exécution pour le notebook `.ipynb`.
 
 ---
 
 ## 2. Mode d'Emploi Rapide
 
-### A. Lancer le Chatbot interactif dans le terminal
-Le modèle est déjà pré-entraîné (checkpoint [`checkpoints/cyberpunk_fixer.pt`](file:///home/oscar/Documents/A5_CREATECH/Artificial%20Intelligence/Cyberpunk_Generate/checkpoints/cyberpunk_fixer.pt)). Vous pouvez converser avec le Fixer immédiatement :
+### A. Lancer l'interface Web en local (avec API PyTorch)
+Pour faire tourner l'interface web connectée directement au checkpoint local :
+```bash
+python server.py
+```
+Ouvrez ensuite votre navigateur sur **`http://localhost:8000`**.
 
+### B. Lancer le Chatbot interactif dans le terminal
+Le modèle est pré-entraîné dans [`checkpoints/cyberpunk_fixer.pt`](file:///home/oscar/Documents/A5_CREATECH/Artificial%20Intelligence/Cyberpunk_Generate/checkpoints/cyberpunk_fixer.pt). Vous pouvez converser dans le terminal :
 ```bash
 python 10_chat_fixer.py
 ```
 
-**Commandes dans le chat :**
-- Posez n'importe quelle question en français (ex : *« J'ai besoin d'un convoi Militech »*, *« Tu as du boulot ? »*).
-- Changez de personnage à la volée en tapant :
-  - `/statut CORPO`
-  - `/statut NETRUNNER`
-  - `/statut EDGERUNNER`
-  - `/statut MERC`
-- Tapez `quit` pour clore la communication.
-
----
-
-### B. Ouvrir et exécuter le Notebook Jupyter
-Le notebook [`09_cyberpunk_fixer.ipynb`](file:///home/oscar/Documents/A5_CREATECH/Artificial%20Intelligence/Cyberpunk_Generate/09_cyberpunk_fixer.ipynb) contient l'intégralité du cours interactif, structuré en 9 chapitres rigoureux :
-
+### C. Ouvrir et exécuter le Notebook Jupyter
+Le cours complet en 9 chapitres ultra-détaillés et commentés :
 ```bash
 jupyter notebook 09_cyberpunk_fixer.ipynb
 ```
@@ -105,6 +108,15 @@ Il produit environ 800 Ko de dialogues balisés (`data/nightcity_corpus.txt`) é
 
 ```text
 Cyberpunk_Generate/
+│
+├── docs/                        # Application Web hébergée sur GitHub Pages
+│   ├── index.html               # Terminal Holo Cyberpunk & TCG Persona Cards
+│   ├── style.css                # Feuille de style inspirée de cyberpunktcg.com
+│   ├── app.js                   # Contrôleur d'interface, typewriter & suggestions
+│   └── cyberpunk-engine.js      # Moteur IA client autonome & Soundboard Web Audio
+│
+├── index.html                   # Lanceur / Redirection racine vers docs/
+├── server.py                    # Serveur HTTP local hybride (Web + API REST PyTorch)
 │
 ├── 09_cyberpunk_fixer.ipynb     # Notebook Jupyter interactif complet en 9 chapitres
 ├── 09_train_cyberpunk_gpt.py    # Script d'entraînement autonome (gradient clipping + TensorBoard)
